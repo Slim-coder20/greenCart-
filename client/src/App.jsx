@@ -6,11 +6,11 @@ const App = () => {
   const isSellerPath = useLocation().pathname.includes("seller");
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       {/* Utilisation d'une condition ternaire pour l'affichage de la navbar seller / user  */}
       {isSellerPath ? null : <Navbar />}
       <div
-        className={` ${isSellerPath ? "" : "md:px-16 lg:px-24 xl: px-32"}`}
+        className={`${isSellerPath ? "" : "md:px-16 lg:px-24 xl:px-32"}`}
       >
         <Routes>
           <Route path="/" element={<Home />} />

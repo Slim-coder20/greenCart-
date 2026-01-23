@@ -29,7 +29,7 @@ export const Navbar = () => {
   // RENDU DU COMPOSANT
   // ============================================
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
+    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all z-50">
       {/* ============================================
           LOGO - Lien vers la page d'accueil
           ============================================ */}
@@ -134,7 +134,7 @@ export const Navbar = () => {
           ============================================ */}
       {open && (
         <div
-          className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
+          className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden z-50`}
         >
           {/* ============================================
               LIENS DE NAVIGATION MOBILE
