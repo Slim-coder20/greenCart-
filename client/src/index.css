@@ -5,6 +5,13 @@
   font-family: 'Outfit', sans-serif;
 }
 
+
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
 @theme {
   --color-primary: #00b894;
   --color-primary-dull: #44ae7c;

@@ -6,7 +6,7 @@ const Categories = () => {
   const { navigate } = useAppContext();
   return (
     <div className="mt-16 px-4 sm:px-0">
-      <p className="text-2xl md:text-3xl font-medium">Categories</p>
+      <p className="text-2xl md:text-3xl font-light">Categories</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 mt-6 gap-3 sm:gap-4 md:gap-6">
         {categories.map((category, index) => (
           <div
@@ -23,7 +23,7 @@ const Categories = () => {
               alt={category.text}
               className="group-hover:scale-105 transition w-full max-w-[80px] sm:max-w-24 md:max-w-28 h-auto object-contain"
             />
-            <p className="text-xs sm:text-sm font-medium text-center break-words">{category.text}</p>
+            <p className="text-xs sm:text-sm font-medium text-center">{category.text}</p>
           </div>
         ))}
       </div>
