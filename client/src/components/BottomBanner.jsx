@@ -27,12 +27,14 @@ const BottomBanner = () => {
                 className="w-9 h-9 md:w-11 md:h-11 flex-shrink-0"
               />
               <div className="flex flex-col min-w-0 flex-1">
-                <h3 className="text-sm md:text-lg font-semibold text-gray-800 mb-0.5 md:mb-1">
-                  {feature.title}
-                </h3>
-                <p className="text-xs md:text-base text-gray-500/70 break-words">
-                  {feature.description}
-                </p>
+                <div>
+                  <h3 className="text-sm md:text-lg font-semibold text-gray-800 mb-0.5 md:mb-1">
+                    {feature.title}
+                  </h3>
+                  <p className="text-xs md:text-base text-gray-500/70 break-words">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
