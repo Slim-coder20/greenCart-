@@ -5,6 +5,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import {useEffect } from "react"; 
 
 // ============================================
 // COMPOSANT NAVBAR
@@ -14,7 +15,14 @@ export const Navbar = () => {
   // ÉTATS ET CONTEXT
   // ============================================
   const [open, setOpen] = React.useState(false); // État pour l'ouverture/fermeture du menu mobile
-  const { user, setUser, setShowUserLogin, navigate } = useAppContext(); // Récupération des valeurs du contexte
+  const {
+    user,
+    setUser,
+    setShowUserLogin,
+    navigate,
+    setSearchQuery,
+    searchQuery,
+  } = useAppContext(); // Récupération des valeurs du contexte
 
   // ============================================
   // FONCTIONS
@@ -24,6 +32,15 @@ export const Navbar = () => {
     setUser(null);
     navigate("/");
   };
+
+  //==================================
+  //Création d'un useEffect 
+  //==================================
+  useEffect(() => {
+    if(searchQuery.length > 0 ) {
+      navigate("/products"); 
+    }
+  },[searchQuery])
 
   // ============================================
   // RENDU DU COMPOSANT
@@ -56,6 +73,7 @@ export const Navbar = () => {
             className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             type="text"
             placeholder="Search products"
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
           <img src={assets.search_icon} alt="search" className="w-4 h-4" />
         </div>

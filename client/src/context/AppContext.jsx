@@ -27,7 +27,7 @@ export const AppContextProvider = ({ children }) => {
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
-  const [searchQuery, setSearchQuery ] = useState({}); 
+  const [searchQuery, setSearchQuery] = useState(""); 
 
   // Création d'une fonction qui va me permettre de récupérer l'objet dummyProducts depuis le fichier assets.js//
   const fetchProducts = async () => {
