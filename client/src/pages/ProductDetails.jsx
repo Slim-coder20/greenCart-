@@ -144,7 +144,7 @@ const ProductDetails = () => {
             <p className="text-3xl font-light ">Related Products</p>
             <div className="w-20 h-0.5 bg-primary rounded-full mt-2"></div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 md:gap-10 lg:gap-12 mt-10 w-full max-w-6xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 md:gap-10 lg:gap-12 mt-10 w-full max-w-6xl justify-items-center">
             {relatedProduct
               .filter((product) => product.inStock)
               .map((product, index) => (

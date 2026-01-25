@@ -38,7 +38,7 @@ const BottomBanner = () => {
               <img
                 src={feature.icon}
                 alt={feature.title}
-                className="w-9 h-9 md:w-11 md:h-11 flex-shrink-0"
+                className="w-9 h-9 md:w-11 md:h-11 shrink-0"
               />
               {/* Contenu textuel de la feature */}
               <div className="flex flex-col min-w-0 flex-1">
@@ -48,7 +48,7 @@ const BottomBanner = () => {
                     {feature.title}
                   </h3>
                   {/* Description de la feature */}
-                  <p className="text-xs md:text-base text-gray-500/70 break-words">
+                  <p className="text-xs md:text-base text-gray-500/70 wrap-break-word">
                     {feature.description}
                   </p>
                 </div>

@@ -22,6 +22,7 @@ export const Navbar = () => {
     navigate,
     setSearchQuery,
     searchQuery,
+    getCartCount
   } = useAppContext(); // Récupération des valeurs du contexte
 
   // ============================================
@@ -97,7 +98,7 @@ export const Navbar = () => {
             className="w-6 opacity-80"
           />
           <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full">
-            0
+            {getCartCount()}
           </button>
         </div>
 
@@ -156,16 +157,19 @@ export const Navbar = () => {
             className="w-6 opacity-80"
           />
           <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full flex items-center justify-center">
-            0
+            {getCartCount()}
           </button>
         </div>
         {/* Bouton menu hamburger */}
+        <div>
+
         <button
           onClick={() => (open ? setOpen(false) : setOpen(true))}
           aria-label="Menu"
         >
           <img src={assets.menu_icon} alt="menu" />
         </button>
+        </div>
       </div>
 
       {/* ============================================

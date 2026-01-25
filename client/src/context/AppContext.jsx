@@ -44,7 +44,7 @@ export const AppContextProvider = ({ children }) => {
     setCartItems(cartData);
     toast.success("Added to Cart");
   };
-  // Fonction qji va permettre de mettre a jour la quantité d'un produit dans le panier //
+  // Fonction qui va permettre de mettre a jour la quantité d'un produit dans le panier //
   const updateCartItemQuantity = (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
     cartData[itemId] = quantity;
@@ -64,6 +64,67 @@ export const AppContextProvider = ({ children }) => {
     toast.success("Remove from Cart");
     setCartItems(cartData)
   };
+
+  /**
+   * Fonction getCartCount
+   * Calcule et retourne le nombre total d'articles dans le panier
+   * 
+   * @returns {number} Le nombre total d'articles (somme de toutes les quantités)
+   * 
+   * @example
+   * Si cartItems = { "prod1": 3, "prod2": 2, "prod3": 1 }
+   * getCartCount() retourne 6
+   * 
+   * Logique :
+   * - Parcourt tous les produits dans cartItems (objet où clé = ID produit, valeur = quantité)
+   * - Additionne toutes les quantités pour obtenir le total d'articles
+   */
+  const getCartCount = () => {
+    let totalCount = 0; 
+    // Parcourt chaque produit dans le panier
+    for(const item in cartItems ){
+      // Additionne la quantité de chaque produit au total
+      totalCount += cartItems[item]; 
+    }
+    return totalCount; 
+  }
+
+  /**
+   * Fonction getCartAmount
+   * Calcule et retourne le montant total du panier en utilisant les prix promotionnels
+   * 
+   * @returns {number} Le montant total arrondi à 2 décimales
+   * 
+   * @example
+   * Produit A : offerPrice = 10.99, quantité = 2 → 21.98
+   * Produit B : offerPrice = 5.50, quantité = 1 → 5.50
+   * Total : 27.48
+   * 
+   * Logique :
+   * - Parcourt tous les produits dans cartItems
+   * - Pour chaque produit, trouve les informations complètes dans products via l'ID
+   * - Multiplie le prix promotionnel (offerPrice) par la quantité dans le panier
+   * - Additionne tous ces montants pour obtenir le total
+   * - Arrondit à 2 décimales en utilisant Math.floor (troncature, pas d'arrondi mathématique)
+   * 
+   * Note : Math.floor(totalAmount * 100) / 100 permet de tronquer à 2 décimales
+   * Exemple : 10.999 devient 10.99 (pas 11.00)
+   */
+  const getCartAmount = () => {
+    let totalAmount = 0; 
+    // Parcourt chaque produit dans le panier
+    for(const items in cartItems){
+      // Trouve les informations du produit dans la liste products en utilisant l'ID
+      let itemInfo = products.find((product) => product._id === items );
+      // Vérifie que la quantité est supérieure à 0 pour éviter les erreurs
+      if(cartItems[items] > 0 ) {
+          // Ajoute au total : prix promotionnel × quantité
+          totalAmount += itemInfo.offerPrice * cartItems[items]
+      }
+    }
+    // Retourne le montant total arrondi à 2 décimales (troncature)
+    return Math.floor(totalAmount * 100 ) / 100; 
+  }
 
   useEffect(() => {
     fetchProducts();
@@ -87,7 +148,9 @@ export const AppContextProvider = ({ children }) => {
     updateCartItemQuantity,
     removeFromCart,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    getCartAmount,
+    getCartCount
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };;
