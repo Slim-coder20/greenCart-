@@ -61,9 +61,15 @@ export const Navbar = () => {
         {/* ============================================
             LIENS DE NAVIGATION PRINCIPAUX
             ============================================ */}
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/products">All Product</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
+        <NavLink to="/" className="hover:text-primary-dull">
+          Home
+        </NavLink>
+        <NavLink to="/products" className="hover:text-primary-dull">
+          All Product
+        </NavLink>
+        <NavLink to="/contact" className="hover:text-primary-dull">
+          Contact
+        </NavLink>
 
         {/* ============================================
             BARRE DE RECHERCHE - Visible uniquement sur écrans >= lg (1024px)
