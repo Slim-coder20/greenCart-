@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
 import { useParams, Link } from "react-router-dom";
 import { assets } from "../assets/assets";
+import ProductCard from "../components/ProductCard";
 
 /** Page détail d’un produit : galerie, infos, prix, description, Add to Cart / Buy now. */
 const ProductDetails = () => {
@@ -33,8 +34,19 @@ const ProductDetails = () => {
       <div className="max-w-6xl w-full px-6 mt-16">
         {/* Fil d’Ariane : Home > products > catégorie > nom du produit */}
         <p>
-          <Link to={"/"}>Home</Link> /<Link to={"/products"}> products</Link> /
-          <Link to={`/products/${product.category.toLowerCase()}`}>
+          <Link to={"/"} className="hover:text-primary-dull">
+            Home
+          </Link>{" "}
+          /
+          <Link to={"/products"} className="hover:text-primary-dull">
+            {" "}
+            products
+          </Link>{" "}
+          /
+          <Link
+            to={`/products/${product.category.toLowerCase()}`}
+            className="hover:text-primary-dull"
+          >
             {" "}
             {product.category}
           </Link>{" "}
@@ -125,6 +137,29 @@ const ProductDetails = () => {
               </button>
             </div>
           </div>
+        </div>
+        {/* Affichage des Produits similaires */}
+        <div className="flex flex-col items-center mt-20">
+          <div className="flex flex-col items-center w-max ">
+            <p className="text-3xl font-light ">Related Products</p>
+            <div className="w-20 h-0.5 bg-primary rounded-full mt-2"></div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 md:gap-10 lg:gap-12 mt-10 w-full max-w-6xl">
+            {relatedProduct
+              .filter((product) => product.inStock)
+              .map((product, index) => (
+                <ProductCard key={index} product={product} />
+              ))}
+          </div>
+          <button
+            onClick={() => {
+              navigate("/products");
+              scrollTo(0, 0);
+            }}
+            className="mx-auto cursor-pointer px-12 my-16 py-2.5 border rounded text-primary hover:bg-primary/10 transition "
+          >
+            See More
+          </button>
         </div>
       </div>
     )
