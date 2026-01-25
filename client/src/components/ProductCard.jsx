@@ -3,13 +3,20 @@ import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 
 const ProductCard = ({ product }) => {
-  const [count, setCount] = useState(0);
   const { currency, addToCart, removeFromCart, cartItems, navigate } =
     useAppContext();
 
   return (
     product && (
-      <div className="border border-gray-500/20 rounded-md md:px-4 px-3 py-2 bg-white min-w-56 max-w-56 w-full">
+      /* Carte produit : clic → page détail (category/id), scroll en haut */
+      <div
+        onClick={() => {
+          navigate(`/products/${product.category.toLowerCase()}/${product._id}`);
+          scrollTo(0, 0);
+        }}
+        className="border border-gray-500/20 rounded-md md:px-4 px-3 py-2 bg-white min-w-56 max-w-56 w-full"
+      >
+        {/* Image produit avec zoom au survol */}
         <div className="group cursor-pointer flex items-center justify-center px-2">
           <img
             className="group-hover:scale-105 transition max-w-26 md:max-w-36"
@@ -17,6 +24,7 @@ const ProductCard = ({ product }) => {
             alt={product.name}
           />
         </div>
+        {/* Catégorie, nom et notation par étoiles (rating sur 5) */}
         <div className="text-gray-500/60 text-sm">
           <p>{product.category}</p>
           <p className="text-gray-700 font-medium text-lg truncate w-full">
@@ -44,6 +52,7 @@ const ProductCard = ({ product }) => {
               )}
             <p>(4)</p>
           </div>
+          {/* Prix (promo barré) + zone panier */}
           <div className="flex items-end justify-between mt-3">
             <p className="md:text-xl text-base font-medium text-primary">
               {currency}{product.offerPrice}{" "}
@@ -51,10 +60,9 @@ const ProductCard = ({ product }) => {
                 {currency}{product.price}
               </span>
             </p>
+            {/* Clic sur Add / +/- ne navigue pas : stopPropagation */}
             <div
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
+              onClick={(e) => e.stopPropagation()}
               className="text-primary"
             >
               {!cartItems[product._id] ? (
@@ -66,6 +74,7 @@ const ProductCard = ({ product }) => {
                   Add
                 </button>
               ) : (
+                /* Déjà dans le panier : afficher quantité avec + / - */
                 <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary/25 rounded select-none">
                   <button
                     onClick={() => {
