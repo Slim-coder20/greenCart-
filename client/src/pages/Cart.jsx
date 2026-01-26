@@ -1,92 +1,32 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { dummyAddress, assets } from "../assets/assets";
-import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
     currency,
     cartItems,
     products,
-    setCartItems,
+    removeFromCart,
+    getCartCount,
+    updateCartItemQuantity,
+    navigate,
+    getCartAmount,
   } = useAppContext();
-
-  const navigate = useNavigate();
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState(dummyAddress);
   const [showAddress, setShowAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
   const [payementOption, setPayementOption] = useState("COD");
 
-  /**
-   * Fonction getCart
-   * Construit un tableau des produits du panier avec leurs quantités
-   * à partir de l'objet cartItems
-   */
   const getCart = () => {
     let tempArray = [];
     for (const key in cartItems) {
       const product = products.find((item) => item._id === key);
-      if (product) {
-        product.quantity = cartItems[key];
-        tempArray.push(product);
-      }
+      product.quantity = cartItems[key];
+      tempArray.push(product);
     }
     setCartArray(tempArray);
-  };
-
-  /**
-   * Fonction getCartCount
-   * Calcule et retourne le nombre total d'articles dans le panier
-   */
-  const getCartCount = () => {
-    let totalCount = 0;
-    for (const item in cartItems) {
-      totalCount += cartItems[item];
-    }
-    return totalCount;
-  };
-
-  /**
-   * Fonction getCartAmount
-   * Calcule et retourne le montant total du panier en utilisant les prix promotionnels
-   */
-  const getCartAmount = () => {
-    let totalAmount = 0;
-    for (const items in cartItems) {
-      let itemInfo = products.find((product) => product._id === items);
-      if (itemInfo && cartItems[items] > 0) {
-        totalAmount += itemInfo.offerPrice * cartItems[items];
-      }
-    }
-    return Math.floor(totalAmount * 100) / 100;
-  };
-
-  /**
-   * Fonction updateCartItemQuantity
-   * Met à jour la quantité d'un produit dans le panier
-   */
-  const updateCartItemQuantity = (itemId, quantity) => {
-    let cartData = structuredClone(cartItems);
-    if (quantity > 0) {
-      cartData[itemId] = quantity;
-      setCartItems(cartData);
-      toast.success("Cart Updated");
-    }
-  };
-
-  /**
-   * Fonction removeFromCart
-   * Supprime un produit du panier
-   */
-  const removeFromCart = (itemId) => {
-    let cartData = structuredClone(cartItems);
-    if (cartData[itemId]) {
-      delete cartData[itemId];
-      setCartItems(cartData);
-      toast.success("Removed from Cart");
-    }
   };
 
   /**
