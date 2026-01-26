@@ -27,7 +27,7 @@ export const AppContextProvider = ({ children }) => {
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Création d'une fonction qui va me permettre de récupérer l'objet dummyProducts depuis le fichier assets.js//
   const fetchProducts = async () => {
@@ -62,44 +62,31 @@ export const AppContextProvider = ({ children }) => {
       }
     }
     toast.success("Remove from Cart");
-    setCartItems(cartData)
+    setCartItems(cartData);
   };
 
   /**
    * Fonction getCartCount
    * Calcule et retourne le nombre total d'articles dans le panier
-   * 
-   * @returns {number} Le nombre total d'articles (somme de toutes les quantités)
-   * 
-   * @example
-   * Si cartItems = { "prod1": 3, "prod2": 2, "prod3": 1 }
-   * getCartCount() retourne 6
-   * 
+   *
    * Logique :
    * - Parcourt tous les produits dans cartItems (objet où clé = ID produit, valeur = quantité)
    * - Additionne toutes les quantités pour obtenir le total d'articles
    */
   const getCartCount = () => {
-    let totalCount = 0; 
+    let totalCount = 0;
     // Parcourt chaque produit dans le panier
-    for(const item in cartItems ){
+    for (const item in cartItems) {
       // Additionne la quantité de chaque produit au total
-      totalCount += cartItems[item]; 
+      totalCount += cartItems[item];
     }
-    return totalCount; 
-  }
+    return totalCount;
+  };
 
   /**
    * Fonction getCartAmount
    * Calcule et retourne le montant total du panier en utilisant les prix promotionnels
-   * 
-   * @returns {number} Le montant total arrondi à 2 décimales
-   * 
-   * @example
-   * Produit A : offerPrice = 10.99, quantité = 2 → 21.98
-   * Produit B : offerPrice = 5.50, quantité = 1 → 5.50
-   * Total : 27.48
-   * 
+   
    * Logique :
    * - Parcourt tous les produits dans cartItems
    * - Pour chaque produit, trouve les informations complètes dans products via l'ID
@@ -111,20 +98,20 @@ export const AppContextProvider = ({ children }) => {
    * Exemple : 10.999 devient 10.99 (pas 11.00)
    */
   const getCartAmount = () => {
-    let totalAmount = 0; 
+    let totalAmount = 0;
     // Parcourt chaque produit dans le panier
-    for(const items in cartItems){
+    for (const items in cartItems) {
       // Trouve les informations du produit dans la liste products en utilisant l'ID
-      let itemInfo = products.find((product) => product._id === items );
+      let itemInfo = products.find((product) => product._id === items);
       // Vérifie que la quantité est supérieure à 0 pour éviter les erreurs
-      if(cartItems[items] > 0 ) {
-          // Ajoute au total : prix promotionnel × quantité
-          totalAmount += itemInfo.offerPrice * cartItems[items]
+      if (cartItems[items] > 0) {
+        // Ajoute au total : prix promotionnel × quantité
+        totalAmount += itemInfo.offerPrice * cartItems[items];
       }
     }
     // Retourne le montant total arrondi à 2 décimales (troncature)
-    return Math.floor(totalAmount * 100 ) / 100; 
-  }
+    return Math.floor(totalAmount * 100) / 100;
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -150,7 +137,7 @@ export const AppContextProvider = ({ children }) => {
     searchQuery,
     setSearchQuery,
     getCartAmount,
-    getCartCount
+    getCartCount,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };;
