@@ -1,13 +1,8 @@
-// ============================================
-// IMPORTS
-// ============================================
 import React from "react";
 import { assets } from "../assets/assets";
 import { useState } from "react";
 
-// ============================================
-// COMPOSANT InputField
-// ============================================
+
 /**
  * Composant réutilisable pour les champs de saisie du formulaire d'adresse
  * @param {string} type - Type du champ input (text, email, etc.)
@@ -27,18 +22,12 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => (
     required
   />
 );
-
-// ============================================
-// COMPOSANT AddAddress
-// ============================================
 /**
  * Page permettant d'ajouter une nouvelle adresse de livraison
  * Contient un formulaire avec tous les champs nécessaires pour une adresse complète
  */
 const AddAddress = () => {
-  // ============================================
-  // ÉTATS
-  // ============================================
+
   /**
    * État qui stocke toutes les informations de l'adresse saisie par l'utilisateur
    */
@@ -54,9 +43,7 @@ const AddAddress = () => {
     phone: "",
   });
 
-  // ============================================
-  // FONCTIONS
-  // ============================================
+
   /**
    * Fonction qui met à jour l'état address lorsqu'un champ du formulaire est modifié
    * @param {Event} e - Événement du changement de valeur dans un champ
@@ -77,9 +64,7 @@ const AddAddress = () => {
     e.preventDefault();
   };
 
-  // ============================================
-  // RENDU DU COMPOSANT
-  // ============================================
+
   return (
     <div className="mt-16 pb-16">
       {/* Titre de la page */}
