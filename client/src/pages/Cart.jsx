@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useAppContext } from "../context/AppContext";
 import { dummyAddress, assets } from "../assets/assets";
 
@@ -13,33 +13,29 @@ const Cart = () => {
     navigate,
     getCartAmount,
   } = useAppContext();
-  const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState(dummyAddress);
   const [showAddress, setShowAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
   const [payementOption, setPayementOption] = useState("COD");
 
-  const getCart = () => {
+  // Construction du tableau des produits du panier avec leurs quantités
+  const cartArray = useMemo(() => {
     let tempArray = [];
     for (const key in cartItems) {
       const product = products.find((item) => item._id === key);
-      product.quantity = cartItems[key];
-      tempArray.push(product);
+      if (product) {
+        product.quantity = cartItems[key];
+        tempArray.push(product);
+      }
     }
-    setCartArray(tempArray);
-  };
+    return tempArray;
+  }, [cartItems, products]);
 
   /**
    * Fonction placeOrder
    * C'est une fonction qui permet de valider le paiement à la livraison
    */
   const placeOrder = async () => {};
-
-  useEffect(() => {
-    if (products.length > 0 && cartItems) {
-      getCart();
-    }
-  }, [products, cartItems]);
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-16">
