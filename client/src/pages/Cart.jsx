@@ -31,7 +31,8 @@ const Cart = () => {
 
   /**
    * Fonction placeOrder
-   * C'est une fonction qui permet de valider le paiement à la livraison
+   * C'est une fonction qui permet de valider le paiement à la livraison à gérer plus tard dans le 
+   * backend via Stripe 
    */
   const placeOrder = async () => {};
 

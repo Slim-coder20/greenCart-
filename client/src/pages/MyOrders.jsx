@@ -89,7 +89,7 @@ const MyOrders = () => {
               </div>
               
               {/* Détails de la commande (quantité, statut, date) */}
-              <div className="text-primary text-sm font-light">
+              <div className="flex flex-col justify-center md:ml-8 mb-4 md:mb-0">
                 <p>Quantity: {item.quantity || "1"}</p>
                 <p>Status: {order.status}</p>
                 <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
