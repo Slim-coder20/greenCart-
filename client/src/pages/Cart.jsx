@@ -91,64 +91,9 @@ const Cart = () => {
 
   /**
    * Fonction placeOrder
-   * Valide et place la commande avec les informations sélectionnées
+   * C'est une fonction qui permet de valider le paiement à la livraison
    */
-  const placeOrder = async () => {
-    // Vérification que le panier n'est pas vide
-    if (cartArray.length === 0) {
-      toast.error("Your cart is empty");
-      return;
-    }
-
-    // Vérification qu'une adresse est sélectionnée
-    if (!selectedAddress) {
-      toast.error("Please select a delivery address");
-      return;
-    }
-
-    try {
-      // Calcul du montant total avec taxes
-      const subtotal = getCartAmount();
-      const tax = (subtotal * 2) / 100;
-      const totalAmount = subtotal + tax;
-
-      // Préparation des données de la commande
-      const orderData = {
-        items: cartArray.map((product) => ({
-          product: product,
-          quantity: product.quantity,
-        })),
-        amount: totalAmount,
-        address: selectedAddress,
-        paymentType: payementOption,
-        isPaid: payementOption === "Online",
-        status: "Order Placed",
-        createdAt: new Date().toISOString(),
-      };
-
-      // Ici, on pourrait faire un appel API pour sauvegarder la commande
-      // await fetch('/api/orders', { method: 'POST', body: JSON.stringify(orderData) });
-
-      // Pour l'instant, on simule juste le succès
-      toast.success(
-        payementOption === "COD"
-          ? "Order placed successfully! You will pay on delivery."
-          : "Redirecting to payment..."
-      );
-
-      // Vider le panier après la commande
-      setCartItems({});
-      
-      // Rediriger vers la page d'accueil ou la page de confirmation
-      setTimeout(() => {
-        navigate("/");
-        scrollTo(0, 0);
-      }, 2000);
-    } catch (error) {
-      toast.error("Failed to place order. Please try again.");
-      console.error("Error placing order:", error);
-    }
-  };
+  const placeOrder = async () => {};
 
   useEffect(() => {
     if (products.length > 0 && cartItems) {
