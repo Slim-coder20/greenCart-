@@ -69,10 +69,10 @@ const SellerLayout = () => {
         </div>
       </div>
 
-      {/* ============================================
+      {/* 
           CONTENEUR PRINCIPAL - Flex horizontal
           Sidebar à gauche + zone de contenu (Outlet) à droite
-          ============================================ */}
+       */}
       <div className="flex min-h-[calc(100vh-4rem)]">
         {/* ============================================
             SIDEBAR - Menu de navigation vertical
@@ -82,7 +82,7 @@ const SellerLayout = () => {
             - Bordure droite pour séparer du contenu principal
             - Flex-col pour empiler les liens verticalement
         */}
-        <div className="md:w-64 w-16 border-r min-h-[calc(100vh-4rem)] text-base border-gray-300 pt-4 flex flex-col transition-all duration-300 shrink-0">
+        <div className="md:w-64 w-16 border-r min-h-[calc(100vh-4rem)] text-base border-gray-300 pt-4 flex flex-col">
           {/* Mapping des liens de navigation */}
           {sidebarLinks.map((item) => (
             <NavLink
