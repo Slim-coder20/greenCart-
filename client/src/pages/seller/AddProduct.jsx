@@ -58,6 +58,14 @@ const AddProduct = () => {
     };
     // envoi vers l’API ou le contexte (ex: addProduct(productData))
     console.log("Produit à enregistrer:", productData);
+
+    // Réinitialisation des champs après soumission
+    setFiles([]);
+    setName("");
+    setDescription("");
+    setCategory("");
+    setPrice("");
+    setOfferPrice("");
   };
 
   return (
