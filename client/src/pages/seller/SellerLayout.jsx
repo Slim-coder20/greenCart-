@@ -71,17 +71,18 @@ const SellerLayout = () => {
 
       {/* ============================================
           CONTENEUR PRINCIPAL - Flex horizontal
+          Sidebar à gauche + zone de contenu (Outlet) à droite
           ============================================ */}
-      <div className="flex">
+      <div className="flex min-h-[calc(100vh-4rem)]">
         {/* ============================================
             SIDEBAR - Menu de navigation vertical
             ============================================
             - Largeur responsive : 64 (256px) sur desktop, 16 (64px) sur mobile
-            - Hauteur fixe de 550px
+            - min-h pour prendre toute la hauteur disponible
             - Bordure droite pour séparer du contenu principal
             - Flex-col pour empiler les liens verticalement
         */}
-        <div className="md:w-64 w-16 border-r h-[550px] text-base border-gray-300 pt-4 flex flex-col transition-all duration-300">
+        <div className="md:w-64 w-16 border-r min-h-[calc(100vh-4rem)] text-base border-gray-300 pt-4 flex flex-col transition-all duration-300 shrink-0">
           {/* Mapping des liens de navigation */}
           {sidebarLinks.map((item) => (
             <NavLink
@@ -110,17 +111,16 @@ const SellerLayout = () => {
             </NavLink>
           ))}
         </div>
-      </div>
 
-      {/* ============================================
-          OUTLET - Zone de contenu pour les routes enfants
-          ============================================
-          Affiche le contenu des routes enfants configurées dans App.jsx :
-          - /seller → AddProduct
-          - /seller/product-list → ProductList
-          - /seller/orders → Orders
-      */}
-      <Outlet />
+        {/* ============================================
+            OUTLET - Zone de contenu pour les routes enfants
+            Doit être DANS le flex pour apparaître à droite de la sidebar,
+            pas en dessous. flex-1 pour occuper l'espace restant.
+            ============================================ */}
+        <div className="flex-1 overflow-auto">
+          <Outlet />
+        </div>
+      </div>
     </>
   );
 };
