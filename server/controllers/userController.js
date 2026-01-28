@@ -2,7 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Création d'un nouveau User //
+// Création d'un nouveau User : /api/user/register 
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -83,3 +83,59 @@ export const register = async (req, res) => {
     });
   }
 };
+
+// Création d'une fonction pour la connexion user : /api/user/login 
+export const login  = async (req, res ) => {
+  try {
+    const {email, password } = req.body;
+
+    // Vérification des champs email et mot de passe 
+    if(!email || !password ) {
+      return res.status(400).json({success: false, errorMessage: "All fields are required"});
+      }
+      
+    // Normalisation de l'email
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Vérification si l'email existe 
+    const user =  await User.findOne({email}); 
+    if(!user){
+      return res.status(401).json({errorMessage: "Invalid email or password", success: false});
+    }
+
+    // Vérification du mot de passe 
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(!isPasswordValid){
+      return res.status(401).json({errorMessage: "Email and password invalid", success:false})
+    }
+    
+    // Création du Token JWT //
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    
+    // Création du cookie pour la session de l'utilisateur //
+    res.cookie('token', token, {
+      httpOnly: true,
+      // Secure: true si en production, sinon false pour le développement //
+      secure: process.env.NODE_ENV === 'production',
+      // SameSite: none si en production, sinon strict pour le développement //
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    })
+      // Réponse au client //
+      return res.status(201).json({
+        success: true,
+        message: "User connected",
+        user: {
+          name: user.name,
+          email: user.email,
+        },
+      });
+    } catch (error) {
+    console.error('Error for connexion:', error);
+    return res
+    .status(500)
+    .json({ errorMessage: 'Error for connexion' });
+  }
+}

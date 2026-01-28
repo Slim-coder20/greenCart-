@@ -1,11 +1,12 @@
 import express from "express";
-import { register } from "../controllers/userController.js";
+import { login, register } from "../controllers/userController.js";
 
 // Initialisation du router //
 const userRouter = express.Router()
 
 // Routes // 
 userRouter.post('/register', register)
+userRouter.post('/login', login)
 
 
 
