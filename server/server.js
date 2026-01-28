@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectMongo } from "./configs/db.js";
 import userRouter from "./routes/userRoute.js";
+import sellerRouter from "./routes/sellerRoute.js";
 
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
   res.send("FoodStore API is running 🚀");
 });
 app.use('/api/user', userRouter)
+app.use('/api/seller',sellerRouter)
 
 //=====//
 // Server 
