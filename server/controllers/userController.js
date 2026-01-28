@@ -123,10 +123,11 @@ export const login  = async (req, res ) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     })
-      // Réponse au client //
+      // Réponse au client (token aussi dans le body pour tests Postman / Authorization header) //
       return res.status(201).json({
         success: true,
         message: "User connected",
+        token,
         user: {
           name: user.name,
           email: user.email,
@@ -146,6 +147,23 @@ export const isAuth = async (req, res ) => {
     const { userId } = req.body; 
     const user = await User.findById(userId).select("-password");
     return res.status(200).json({success: true, user})
+    
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({success:false, errorMessage: error.message}); 
+  }
+}
+
+// Création d'une fonction pour la deconnexion /api/user/logout 
+export const logout = async (req, res ) => {
+  try {
+    // On supprime le cookie 
+    res.clearCookie('token', {
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+    });
+    return res.status(200).json({success: true, message: 'Logged out'})
     
   } catch (error) {
     console.log(error.message);
