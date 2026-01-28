@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import { connectMongo } from "./configs/db.js";
 import userRouter from "./routes/userRoute.js";
 import sellerRouter from "./routes/sellerRoute.js";
+import connectCloudinary from "./configs/cloudnary.js";
+import productRouter from "./routes/productRoute.js";
 
 
 dotenv.config();
@@ -17,6 +19,9 @@ const port = process.env.PORT || 3000 ;
 
 // Connect to MongoDB // 
 await connectMongo();
+
+// Connect to Cloudinary // 
+await connectCloudinary();
 
 const allowedOrigins = ["http://localhost:5173"]
 
@@ -34,6 +39,7 @@ app.get("/", (req, res) => {
 });
 app.use('/api/user', userRouter)
 app.use('/api/seller',sellerRouter)
+app.use('/api/product', productRouter)
 
 //=====//
 // Server 
