@@ -139,3 +139,16 @@ export const login  = async (req, res ) => {
     .json({ errorMessage: 'Error for connexion' });
   }
 }
+
+// création d'une fonction pour vérfier si le user est authentifié : /api/user/is-auth
+export const isAuth = async (req, res ) => {
+  try {
+    const { userId } = req.body; 
+    const user = await User.findById(userId).select("-password");
+    return res.status(200).json({success: true, user})
+    
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({success:false, errorMessage: error.message}); 
+  }
+}
