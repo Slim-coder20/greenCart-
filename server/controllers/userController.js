@@ -1,0 +1,85 @@
+import User from "../models/user.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+// Création d'un nouveau User //
+export const register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ errorMessage: "All fields are required", success: false });
+    }
+    // Vérfication si le user existe déjà //
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ errorMessage: "User already exists", success: false });
+    }
+
+    // Normalisation de l'email //
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Validation du format de l'email //
+    if (!/\S+@\S+\.\S+/.test(normalizedEmail)) {
+      return res
+        .status(400)
+        .json({ errorMessage: "Invalid email format", success: false });
+    }
+
+    // Validation de la longueur du mot de passe //
+    if (password.length < 8) {
+      return res.status(400).json({
+        errorMessage: "Password must be at least 8 characters long",
+        success: false,
+      });
+    }
+    // Validation de la force du mot de passe (majuscule, minuscule, chiffre, caractère spécial)
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        errorMessage:
+          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+        success: false,
+      });
+    }
+    // Hashage du mot de passe //
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Création du nouveau User //
+    const user = await User.create({ name, email, password: hashedPassword });
+
+    // Création du Token JWT //
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    
+    // Création du cookie pour la session de l'utilisateur //
+    res.cookie('token', token, {
+      httpOnly: true,
+      // Secure: true si en production, sinon false pour le développement //
+      secure: process.env.NODE_ENV === 'production',
+      // SameSite: none si en production, sinon strict pour le développement //
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    })
+
+    // Réponse au client //
+    return res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      errorMessage: "Internal server error",
+      success: false,
+    });
+  }
+};

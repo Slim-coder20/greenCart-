@@ -1,0 +1,42 @@
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { connectMongo } from "./configs/db.js";
+import userRouter from "./routes/userRoute.js";
+
+
+dotenv.config();
+
+// Express app //
+const app = express();
+
+// Port // 
+const port = process.env.PORT || 3000 ;
+
+// Connect to MongoDB // 
+await connectMongo();
+
+const allowedOrigins = ["http://localhost:5173"]
+
+// Middleware configuration initialisation /
+// Création d'un objet cors avec les origines autorisés et le cookie parser pour les cookies//
+app.use(cors({arigin: allowedOrigins, credentials: true,})); 
+app.use(express.json());
+app.use(cookieParser()); 
+
+
+// Routes //  
+// Réponse de la route racine //
+app.get("/", (req, res) => {
+  res.send("FoodStore API is running 🚀");
+});
+app.use('/api/user', userRouter)
+
+//=====//
+// Server 
+//=====//
+// Démarrage du serveur //
+app.listen(port, () => {
+  console.log(`Server is running on port http://localhost:${port} 🚀`);
+})
