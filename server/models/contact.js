@@ -23,7 +23,7 @@ date: {
 });
 
 // Création et exportation du modèle
-const Contact = mongoose.model("Contact", contactSchema);
+const Contact = mongoose.models.product || mongoose.model('contact', contactSchema)
 
 // export 
 module.exports = Contact;
