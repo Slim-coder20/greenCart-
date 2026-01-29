@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import User from "../models/user.js";
 
 // ============================================
 // update User Cartdata in the data base : api/cart/update
