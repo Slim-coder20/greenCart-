@@ -9,6 +9,7 @@ import connectCloudinary from "./configs/cloudnary.js";
 import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRouter.js";
 import addressRouter from "./routes/addressRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use('/api/seller',sellerRouter)
 app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/address', addressRouter)
+app.use('/api/order', orderRouter)
 
 //=====//
 // Server 
