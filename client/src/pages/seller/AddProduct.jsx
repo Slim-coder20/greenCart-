@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { assets, categories } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 /**
  * Composant AddProduct
@@ -25,6 +27,9 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
 
+  // Ajout de l'appContext pour appel API via Axios //
+  const { axios } = useAppContext();
+
   /**
    * URLs d’aperçu des images (blob URLs)
    * Créées à partir de files, révoquées au démontage ou quand files change
@@ -46,26 +51,39 @@ const AddProduct = () => {
    * - Convertit price et offerPrice en Number pour l’envoi
    * - Prépare l’objet produit (à envoyer vers l’API ou le contexte)
    */
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    const productData = {
-      name,
-      description,
-      category,
-      price: Number(price) || 0,
-      offerPrice: Number(offerPrice) || 0,
-      images: files.filter(Boolean),
-    };
-    // envoi vers l’API ou le contexte (ex: addProduct(productData))
-    console.log("Produit à enregistrer:", productData);
-
-    // Réinitialisation des champs après soumission
-    setFiles([]);
-    setName("");
-    setDescription("");
-    setCategory("");
-    setPrice("");
-    setOfferPrice("");
+  const onSubmitHandler = async (event) => {
+    try {
+      event.preventDefault();
+      // récupération des champs du formulaire d'ajout de produit depuis l'espace Seller //
+      const productData = {
+        name,
+        description: description.split("\n").filter(Boolean),
+        category,
+        price: Number(price),
+        offerPrice: Number(offerPrice),
+      };
+      // On stock le nouveau produit via l'objet FormData //
+      const formData = new FormData();
+      formData.append("productData", JSON.stringify(productData));
+      // ajout des images au formData (uniquement les fichiers valides) //
+      files.filter(Boolean).forEach((file) => formData.append("images", file));
+      // Envoie des données au serveur //
+      const { data } = await axios.post("/api/product/add", formData);
+      if (data.success) {
+        toast.success(data.message);
+        setName("");
+        setDescription("");
+        setCategory("");
+        setPrice("");
+        setOfferPrice("");
+        setFiles([]);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      // Si une erreur survient, on affiche un message d'erreur //
+      toast.error("Error for adding product");
+    }
   };
 
   return (
