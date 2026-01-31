@@ -1,6 +1,7 @@
 import { useAppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
 import { Link, NavLink, Outlet } from "react-router-dom";
+import toast from "react-hot-toast";
 
 /**
  * Composant SellerLayout
@@ -14,7 +15,7 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 const SellerLayout = () => {
   // Récupération de la fonction setIsSeller depuis le context global de l'application
   // Permet de gérer l'état de connexion du vendeur
-  const { setIsSeller } = useAppContext();
+  const { setIsSeller, axios, navigate } = useAppContext();
 
   /**
    * Configuration des liens de navigation de la sidebar
@@ -39,7 +40,19 @@ const SellerLayout = () => {
    * et le rediriger vers la page de connexion
    */
   const logout = async () => {
-    setIsSeller(false);
+    try {
+      const { data } = await axios.get("/api/seller/logout");
+      if (data.success) {
+        setIsSeller(false);
+        toast.success(data.message || "Déconnexion réussie");
+        navigate("/");
+      }
+    } catch (error) {
+      // En cas d'erreur API, on déconnecte quand même localement
+      setIsSeller(false);
+      toast.error("Une erreur est survenue");
+      navigate("/");
+    }
   };
 
   return (

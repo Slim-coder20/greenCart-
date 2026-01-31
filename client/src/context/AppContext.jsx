@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 /**
  * Ce context est utilisé pour gérer l'état global de l'application : 
@@ -16,7 +17,15 @@ import toast from "react-hot-toast";
  * - producCart
  * - BestSellers 
  */
+
+// Configuration pour envoyer les cookies avec les requêtes API //
+axios.defaults.withCredentials = true; 
+
+// Configuration de l'URL de base pour les requêtes API //
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL; 
+
 export const AppContext = createContext();
+// Création du context global de l'application //
 
 export const AppContextProvider = ({ children }) => {
   const currency = import.meta.env.VITE_CURRENCY;
@@ -28,6 +37,20 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Fonction qui vérifie si le seller est connecté (via le cookie sellerToken) //
+  const fetchSeller = async () => {
+    try {
+      const { data } = await axios.get("/api/seller/is-auth");
+      if (data.success) {
+        setIsSeller(true);
+      } else {
+        setIsSeller(false);
+      }
+    } catch (error) {
+      setIsSeller(false);
+    }
+  };
 
   // Création d'une fonction qui va me permettre de récupérer l'objet dummyProducts depuis le fichier assets.js//
   const fetchProducts = async () => {
@@ -114,6 +137,7 @@ export const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    fetchSeller();
     fetchProducts();
   }, []);
 
@@ -138,9 +162,10 @@ export const AppContextProvider = ({ children }) => {
     setSearchQuery,
     getCartAmount,
     getCartCount,
+    axios,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};;
+};;;;
 
 export const useAppContext = () => {
   return useContext(AppContext);

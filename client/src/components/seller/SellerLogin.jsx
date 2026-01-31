@@ -1,11 +1,10 @@
 import React from "react";
 import { useAppContext } from "../../context/AppContext";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 const SellerLogin = () => {
-  const { isSeller, setIsSeller, navigate } = useAppContext();
+  const { isSeller, setIsSeller, navigate, axios} = useAppContext();
 
   const {
     register,
@@ -14,40 +13,37 @@ const SellerLogin = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "",
+      email: "",  
       password: "",
     },
   });
 
   // Soumission du formulaire //
-  const onSubmit = (data) => {
-    // Définir les credentials valides //
-    const validSeller = {
-      email: "seller@example.com",
-      password: "seller123",
-    };
-
-    // Vérifier si les credentials correspondent
-    if (
-      data.email === validSeller.email &&
-      data.password === validSeller.password
-    ) {
-      setIsSeller(true);
-      // Afficher un message de succès
-      toast.success("Connexion réussie");
-      reset();
-    } else {
-      // Afficher un message d'erreur
-      toast.error("Email ou mot de passe incorrect");
+  const onSubmit = async (data) => {
+    try {
+      // Envoi des données au serveur //
+      const response = await axios.post("/api/seller/login", {
+        email: data.email.trim(),
+        password: data.password
+      });
+      if(response.data.success){
+        // Si la connexion est réussie, on redirige vers le dashboard seller //
+        setIsSeller(true); 
+        toast.success(response.data.message);
+        reset();
+        navigate("/seller");
+      } else {
+        // Si la connexion échoue, on affiche un message d'erreur //
+        toast.error(response.data.message || "Identifiants invalides");
+        reset();
+      }
+    
+    } catch (error) {
+      // Si une erreur survient, on affiche un message d'erreur //
+      toast.error("Une erreur est survenue");
       reset();
     }
   };
-  // useEffect pour rediriger vers la page seller si l'utilisateur est connecté //
-  useEffect(() => {
-    if (isSeller) {
-      navigate("/seller");
-    }
-  }, [isSeller]);
 
   return (
     !isSeller && (

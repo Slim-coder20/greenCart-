@@ -30,7 +30,7 @@ const allowedOrigins = ["http://localhost:5173"]
 
 // Middleware configuration initialisation /
 // Création d'un objet cors avec les origines autorisés et le cookie parser pour les cookies//
-app.use(cors({arigin: allowedOrigins, credentials: true,})); 
+app.use(cors({ origin: allowedOrigins, credentials: true })); 
 app.use(express.json());
 app.use(cookieParser()); 
 

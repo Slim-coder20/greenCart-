@@ -4,12 +4,15 @@ import jwt from "jsonwebtoken";
 export const sellerLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    // Vérification du mot de passe avec la variable d'environnement
+    
+    const trimmedEmail = email?.trim?.() ?? "";
+    const trimmedPassword = password?.trim?.() ?? "";
+    // Vérification des identifiants avec les variables d'environnement
     if (
-      password === process.env.SELLER_PASSWORD &&
-      email === process.env.SELLER_EMAIL
+      trimmedPassword === process.env.SELLER_PASSWORD &&
+      trimmedEmail === process.env.SELLER_EMAIL
     ) {
-      const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ email: trimmedEmail }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
 
