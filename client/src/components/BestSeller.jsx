@@ -9,7 +9,7 @@ import { useAppContext } from "../context/AppContext";
  */
 const BestSeller = () => {
   // Récupération de la liste des produits depuis le contexte
-  const { products } = useAppContext();
+  const { products} = useAppContext();
   
   return (
     <div>

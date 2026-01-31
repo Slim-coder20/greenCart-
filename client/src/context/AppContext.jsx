@@ -52,10 +52,22 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Création d'une fonction qui va me permettre de récupérer l'objet dummyProducts depuis le fichier assets.js//
+  // Création d'une fonction qui va me permettre de récupérer l'objet dummyProducts depuis le fichier assets.js et récupérer tous les produits //
   const fetchProducts = async () => {
-    setProducts(dummyProducts);
+    try {
+      const { data } = await axios.get("/api/product/list");
+      if (data.success) {
+        setProducts(data.products);
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      // Si une erreur survient, on affiche un message d'erreur //
+      toast.error("Error for get all products");  
+    }
   };
+
   // Fonction qui va permettre d'ajouter un produit au panier //
   const addToCart = (itemId) => {
     let cartData = structuredClone(cartItems);
@@ -163,9 +175,10 @@ export const AppContextProvider = ({ children }) => {
     getCartAmount,
     getCartCount,
     axios,
+    fetchProducts
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};;;;
+};;;;;
 
 export const useAppContext = () => {
   return useContext(AppContext);
