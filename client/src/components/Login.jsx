@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 /**
  * Composant Login
@@ -12,7 +13,7 @@ import { useAppContext } from "../context/AppContext";
  */
 const Login = () => {
   // Récupération des fonctions du contexte pour gérer l'utilisateur et la visibilité de la modale
-  const { setShowUserLogin, setUser } = useAppContext();
+  const { setShowUserLogin, setUser, axios, navigate } = useAppContext();
   
   // État pour basculer entre le mode "login" et "register"
   const [state, setState] = useState("login");
@@ -32,12 +33,36 @@ const Login = () => {
    * Enregistre l'utilisateur avec son email et son nom (ou "User" par défaut)
    * Ferme la modale après la soumission
    */
-  const onSubmit = (data) => {
-    setUser({
-      email: data.email,
-      name: data.name || "User",
-    });
-    setShowUserLogin(false);
+  const onSubmit = async (data) => {
+   try {
+    // Définition de l'endpoint en fonction du mode (login ou register) //
+    const endpoint = state === "login" ? "/api/user/login" : "/api/user/register";
+    // Définition du payload en fonction du mode (login ou register) //
+    const payload = state === "login"
+      ? { email: data.email.trim(), password: data.password }
+      : { name: data.name.trim(), email: data.email.trim(), password: data.password };
+
+    // Envoi des données au serveur //
+    const response = await axios.post(endpoint, payload);
+
+    if (response.data.success) {
+      // Si la connexion est réussie, on stocke l'utilisateur et on ferme la modale //
+      setUser(response.data.user);
+      setShowUserLogin(false);
+      toast.success(response.data.message);
+      // Réinitialisation du formulaire //
+      reset();
+      navigate("/");
+    } else {
+      // Si la connexion échoue, on affiche un message d'erreur //
+      toast.error(response.data.errorMessage || response.data.message || "Une erreur est survenue");
+      reset();
+    }
+   } catch (error) {
+    // Si une erreur survient, on affiche un message d'erreur //
+    toast.error("Error for login/register: " + error.message);
+    reset();
+   }
   };
 
   /**
