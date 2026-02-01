@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 // Création du Schema pour le formulaire de contact // 
 const contactSchema = new mongoose.Schema({
 
-fullName: {
+name: {
   type: String, 
   required: true
 }, 
@@ -23,7 +23,6 @@ date: {
 });
 
 // Création et exportation du modèle
-const Contact = mongoose.models.product || mongoose.model('contact', contactSchema)
+const Contact = mongoose.models.contact || mongoose.model("contact", contactSchema);
 
-// export 
-module.exports = Contact;
+export default Contact;

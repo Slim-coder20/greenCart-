@@ -9,7 +9,7 @@ function Contact() {
     formState: { errors },
     reset,
   } = useForm({
-    defaultValues: { fullName: "", email: "", message: "" },
+    defaultValues: { name: "", email: "", message: "" },
   });
 
   const onSubmit = (data) => {
@@ -33,14 +33,14 @@ function Contact() {
         <p className="max-md:text-sm text-gray-500 pb-10 text-center">
           Or just reach out manually to us at{" "}
           <a href="#" className="text-gray-500 hover:text-primary-dull">
-            greencart@gmail.com
+            foodstore@gmail.com
           </a>
         </p>
 
         <div className="max-w-96 w-full px-4">
           <div className="mb-4">
             <label htmlFor="name" className="font-medium text-primary">
-              Full Name
+              Name
             </label>
             <div className="flex items-center mt-2 h-10 pl-3 border border-slate-300 rounded-full focus-within:ring-2 focus-within:ring-indigo-400 transition-all overflow-hidden">
               <svg
@@ -58,13 +58,13 @@ function Contact() {
               <input
                 type="text"
                 className="h-full px-2 w-full outline-none bg-transparent"
-                placeholder="Enter your full name"
-                {...register("fullName", { required: "Full name is required" })}
+                placeholder="Enter your name"
+                {...register("name", { required: "Name is required" })}
               />
             </div>
             {errors.fullName && (
               <p className="text-red-500 text-xs mt-1 text-left pl-1">
-                {errors.fullName.message}
+                {errors.name.message}
               </p>
             )}
           </div>
