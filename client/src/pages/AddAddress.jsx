@@ -1,6 +1,8 @@
 import React from "react";
 import { assets } from "../assets/assets";
-import { useState } from "react";
+import { useAppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 
 /**
@@ -28,6 +30,7 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => (
  */
 const AddAddress = () => {
 
+  const { axios, user, navigate } = useAppContext(); 
   /**
    * État qui stocke toutes les informations de l'adresse saisie par l'utilisateur
    */
@@ -62,7 +65,35 @@ const AddAddress = () => {
    */
   const onSubmithandler = async (e) => {
     e.preventDefault();
+    try {
+      const addressData = {
+        firstName: address.firstname,
+        lastName: address.lastname,
+        email: address.email,
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        country: address.country,
+        zipcode: parseInt(address.zipcode, 10) || 0,
+        phone: address.phone,
+      };
+      const { data } = await axios.post("/api/address/add", { address: addressData });
+      if (data?.success) {
+        toast.success(data.message);
+        navigate("/cart");
+      } else {
+        toast.error(data?.message || "Failed to add address");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to add address");
+    }
   };
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/cart");
+    }
+  }, [user, navigate]);
 
 
   return (
@@ -88,7 +119,7 @@ const AddAddress = () => {
               <InputField
                 handleChange={handleChange}
                 address={address}
-                name="lasttname"
+                name="lastname"
                 type="text"
                 placeholder="Last Name"
               />
@@ -159,7 +190,7 @@ const AddAddress = () => {
             
             {/* Bouton de soumission */}
             <button
-              onChange={handleChange}
+              type="submit"
               className="w-full bg-primary text-white py-3 hover:bg-primary-dull transition cursor-pointer uppercase"
             >
               Save Address
