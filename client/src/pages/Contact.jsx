@@ -1,8 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useAppContext } from "../context/AppContext";
 
 function Contact() {
+
+  const { axios, navigate } = useAppContext(); 
+
   const {
     register,
     handleSubmit,
@@ -12,12 +16,22 @@ function Contact() {
     defaultValues: { name: "", email: "", message: "" },
   });
 
+
+
   const onSubmit = (data) => {
-    // Traitement du message (à brancher sur une API plus tard). On ne touche pas au user connecté.
-    console.log("Contact:", data);
-    toast.success("Thank you, your message has been sent successfully.");
-    reset();
-  };
+    // Traitement du message via API : /api/contact 
+    try {
+      const { data } = await axios.post("")
+      
+    } catch (error) {
+      
+    }
+  
+  
+  
+  
+  }
+    
   return (
     <div className="flex flex-col items-center justify-center text-center space-y-2 mt-24 pb-14">
       <form
