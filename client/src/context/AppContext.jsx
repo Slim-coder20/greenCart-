@@ -38,10 +38,13 @@ export const AppContextProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Vérifie si le seller est connecté (cookie sellerToken)
+  // validateStatus: évite que le 401 (utilisateur non-vendeur) soit traité comme une erreur
   const fetchSeller = async () => {
     try {
-      const { data } = await axios.get("/api/seller/is-auth");
-      setIsSeller(!!data?.success);
+      const { data, status } = await axios.get("/api/seller/is-auth", {
+        validateStatus: (s) => s < 500,
+      });
+      setIsSeller(status === 200 && !!data?.success);
     } catch (error) {
       setIsSeller(false);
     }

@@ -59,16 +59,13 @@ export const getUserOrders = async (req, res) => {
         .status(400)
         .json({ success: false, message: "User Not Found" });
     }
-    // Récupérer les commandes de l'utilisateur //
+    // Récupérer les commandes de l'utilisateur (COD ou payées en ligne)
     const orders = await Order.find({
       userId,
       $or: [
-        {
-          payementType: "COD",
-          isPaid: true,
-        },
+        { paymentType: "COD" },
+        { paymentType: "Online", isPaid: true },
       ],
-      // Récupérer les produits de la commande //
     })
       .populate("items.product address")
       .sort({ createdAt: -1 });
@@ -84,16 +81,14 @@ export const getUserOrders = async (req, res) => {
 //  récupération de tous les commandes pour un vendeur ou admin : api/order/seller
 export const getAllOrders = async (req, res) => {
   try {
-    // Récupérer les commandes de l'utilisateur //
     const orders = await Order.find({
       $or: [
-        {
-          payementType: "COD",
-          isPaid: true,
-        },
+        { paymentType: "COD" },
+        { paymentType: "Online", isPaid: true },
       ],
-      // Récupérer les produits de la commande //
-    }).populate("items.product address").sort({createdAt: -1});
+    })
+      .populate("items.product address")
+      .sort({ createdAt: -1 });
     // Retourner les commandes //
     return res.status(200).json({ success: true, orders });
   } catch (error) {

@@ -4,15 +4,15 @@ import mongoose from "mongoose";
 // Création du schema pour la commande user 
 const orderSchema = new mongoose.Schema({
   userId: {
-    type: String, 
+    type: mongoose.Schema.Types.ObjectId, 
     required: true,
     ref: 'user'
   },
   items: [{
     product: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'product',
+      ref: 'prodcut',
     },
     quantity: {
       type: Number,
@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema({
 
   },
   address: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'address',
   },

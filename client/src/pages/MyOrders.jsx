@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
-import { dummyOrders } from "../assets/assets";
+import toast from "react-hot-toast";
 
 /**
  * Composant MyOrders
@@ -16,22 +16,34 @@ const MyOrders = () => {
   /**
    * Récupération de la devise depuis le contexte
    */
-  const { currency } = useAppContext();
+  const { currency, axios, user } = useAppContext();
 
   /**
    * Fonction qui récupère les commandes depuis les données mockées
    * Pour l'instant, utilise dummyOrders, mais pourra être remplacée par un appel API
    */
   const fetchMyOrders = async () => {
-    setMyOrders(dummyOrders);
+    try {
+      const { data } = await axios.get("/api/order/user");
+      if (data.success && Array.isArray(data.orders)) {
+        setMyOrders(data.orders);
+      } else {
+        setMyOrders([]);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to load orders");
+      setMyOrders([]);
+    }
   };
 
   /**
    * useEffect qui charge les commandes au montage du composant
    */
   useEffect(() => {
-    fetchMyOrders();
-  }, []);
+    if (user) {
+      fetchMyOrders();
+    }
+  }, [user]);
 
   return (
     <div className="mt-16 pb-16">
@@ -42,7 +54,10 @@ const MyOrders = () => {
       </div>
       
       {/* Liste des commandes */}
-      {myOrders.map((order, index) => (
+      {myOrders.length === 0 ? (
+        <p className="text-gray-500">No orders yet. Your orders will appear here after you place them.</p>
+      ) : (
+      myOrders.map((order, index) => (
         <div
           key={index}
           className="border border-gray-300 rounded-lg mb-10 p-4 py-5 max-w-4xl"
@@ -60,9 +75,10 @@ const MyOrders = () => {
           </p>
           
           {/* Liste des articles de la commande */}
-          {order.items.map((item, index) => (
+          {order.items?.map((item, index) =>
+            item.product ? (
             <div 
-              key={index}
+              key={item.product._id || index}
               className={`relative bg-white text-gray-500/70 ${order.items.length !== index + 1 && "border-b"} border-gray-300 flex flex-col md:flex-row md:items-center justify-betweenp-4 py-5 md:gap-48 w-full max-w-4xl`}
             >
               {/* Informations du produit */}
@@ -70,8 +86,8 @@ const MyOrders = () => {
                 {/* Image du produit */}
                 <div className=" border border-gray-400 p-2 rounded-full mt-2 bg-primary/10">
                   <img
-                    src={item.product.image[0]}
-                    alt="product"
+                    src={item.product?.image?.[0]}
+                    alt={item.product?.name || "product"}
                     className="w-16 h-16 "
                   />
                 </div>
@@ -79,10 +95,10 @@ const MyOrders = () => {
                 <div>
                   <div className="ml-4">
                     <h2 className="text-sm font-light  text-gray-800">
-                      {item.product.name}
+                      {item.product?.name}
                     </h2>
                     <p className="text-sm font-light  text-gray-800">
-                      Category: {item.product.category}
+                      Category: {item.product?.category}
                     </p>
                   </div>
                 </div>
@@ -98,12 +114,14 @@ const MyOrders = () => {
               {/* Montant total pour cet article */}
               <p className="text-primary text-sm font-light">
                 Amount: {currency}
-                {item.product.offerPrice * item.quantity}
+                {(item.product?.offerPrice || item.product?.price || 0) * (item.quantity || 1)}
               </p>
             </div>
-          ))}
+            ) : null
+          )}
         </div>
-      ))}
+      ))
+      )}
     </div>
   );
 };
