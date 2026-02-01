@@ -66,6 +66,7 @@ const AddAddress = () => {
   const onSubmithandler = async (e) => {
     e.preventDefault();
     try {
+      // Données de l'adresse à ajouter
       const addressData = {
         firstName: address.firstname,
         lastName: address.lastname,
@@ -77,14 +78,19 @@ const AddAddress = () => {
         zipcode: parseInt(address.zipcode, 10) || 0,
         phone: address.phone,
       };
+      // Envoi des données à l'API /api/address/add
       const { data } = await axios.post("/api/address/add", { address: addressData });
+      // Réponse de succès avec le message de succès
       if (data?.success) {
         toast.success(data.message);
         navigate("/cart");
+        
       } else {
+        // Réponse d'erreur avec le message d'erreur
         toast.error(data?.message || "Failed to add address");
       }
     } catch (error) {
+      // Réponse d'erreur avec le message d'erreur
       toast.error(error?.response?.data?.message || "Failed to add address");
     }
   };

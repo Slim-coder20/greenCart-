@@ -1,22 +1,26 @@
 import { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
 import { dummyAddress, assets } from "../assets/assets";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
     currency,
     cartItems,
+    setCartItems,
     products,
     removeFromCart,
     getCartCount,
     updateCartItemQuantity,
     navigate,
     getCartAmount,
+    user,
+    axios,
   } = useAppContext();
   const [cartArray, setCartArray] = useState([]);
-  const [addresses, setAddresses] = useState(dummyAddress);
+  const [addresses, setAddresses] = useState([]);
   const [showAddress, setShowAddress] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [payementOption, setPayementOption] = useState("COD");
 
   const getCart = () => {
@@ -29,12 +33,70 @@ const Cart = () => {
     setCartArray(tempArray);
   };
 
+  // Récupération des adresses de l'utilisateur via l'API /api/address/get
+  const getAddresses = async () => {
+    try {
+      // Récupération des adresses de l'utilisateur via l'API /api/address/get
+      const { data } = await axios.get("/api/address/get");
+      // Réponse de succès avec les adresses de l'utilisateur
+      if (data.success && data.addresses) {
+        setAddresses(data.addresses);
+        // Sélection de la première adresse par défaut
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+      } else {
+        // Réponse d'erreur avec le message d'erreur
+        setAddresses([]);
+        setSelectedAddress(null);
+      }
+    } catch (error) {
+      // Réponse d'erreur avec le message d'erreur
+      toast.error(error?.response?.data?.message || "Failed to get addresses");
+      setAddresses([]);
+    }
+  };
+
+  // Récupération des adresses de l'utilisateur lorsque le composant est monté
+  useEffect(() => {
+    if (user) {
+      getAddresses();
+    }
+  }, [user]);
+
   /**
    * Fonction placeOrder
-   * C'est une fonction qui permet de valider le paiement à la livraison à gérer plus tard dans le 
-   * backend via Stripe 
+   * C'est une fonction qui permet de valider le paiement à la livraison à gérer plus tard dans le
+   * backend via Stripe
    */
-  const placeOrder = async () => {};
+  const placeOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("Please select an address to place the order");
+      }
+      // Données de la commande a envoyé à l'API /api/order/cod
+      if (payementOption === "COD") {
+        const { data } = await axios.post("/api/order/cod", {
+          userId: user._id,
+          items: cartArray.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+          })),
+          address: selectedAddress._id,
+        });
+        if (data.success) {
+          toast.success(data.message);
+          setCartItems({});
+          navigate("/my-orders");
+        } else {
+          toast.error(data.message);
+        }
+      }
+    } catch (error) {
+      // Réponse d'erreur avec le message d'erreur
+      toast.error(error?.response?.data?.message || "Failed to place order");
+    }
+  };
 
   useEffect(() => {
     if (products.length > 0 && cartItems) {
@@ -174,7 +236,8 @@ const Cart = () => {
                     }}
                     className="text-gray-500 p-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {address.street}, {address.city}, {address.state}, {address.country}
+                    {address.street}, {address.city}, {address.state},{" "}
+                    {address.country}
                   </p>
                 ))}
                 <p

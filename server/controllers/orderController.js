@@ -12,26 +12,32 @@ import Product from "../models/product.js";
 export const placeOrderCod = async (req, res) => {
   try {
     const { userId, items, address } = req.body;
-    if (!address || !items === 0) {
+
+    if (!address || !items || items.length === 0) {
       return res.status(400).json({ success: false, message: "Invalid Data" });
     }
-    // Calculer le montant total de la commande //
-    let amount = await items.reduce(async (acc, item) => {
-      // Récupérer le produit //
+
+    // Calcul du montant total de la commande
+    let amount = 0;
+    for (const item of items) {
       const product = await Product.findById(item.product);
-      // Si le produit a une offre on utililse l'offre,sinon on utilise le prix normal //
-      return (await acc) + product.offerPrice * item.quantity;
-    }, 0);
-    // Ajout de la taxe (2%)
+      if (!product) {
+        return res.status(400).json({
+          success: false,
+          message: `Product not found: ${item.product}`,
+        });
+      }
+      amount += (product.offerPrice || product.price) * item.quantity;
+    }
     amount += Math.floor(amount * 0.02);
 
-    // Création de la commande dans la base de données //
     await Order.create({
       userId,
       items,
       amount,
       address,
-      payementType: "COD",
+      paymentType: "COD",
+      isPaid: false,
     });
     return res
       .status(201)

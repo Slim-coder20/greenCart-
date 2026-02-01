@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema({
 
 }, {timestamps: true});
 
-const Product = mongoose.models.product || mongoose.model('prodcut', productSchema)
+// Note: 'prodcut' est conservé pour la compatibilité avec la collection existante 'prodcuts'
+const Product = mongoose.models.prodcut || mongoose.model("prodcut", productSchema);
 
 export default Product 
