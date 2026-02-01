@@ -18,29 +18,32 @@ function Contact() {
 
 
 
-  const onSubmit = (data) => {
-    // Traitement du message via API : /api/contact 
+  const onSubmit = async (formData) => {
     try {
-      const { data } = await axios.post("")
-      
+      //Envoie des données au serveur via l'API /api/contact en utilisant l'objet formData pour envoyer les données.        
+      const { data } = await axios.post("/api/contact", {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+      });
+      /**
+       * Affichage d'un message de succès et rénitialisation du formulaire
+       * Redirection vers la page d'accueil   
+       */
+      toast.success(data?.message || "Message sent successfully");
+      reset();
+      navigate("/");
     } catch (error) {
-      
+      const message = error.response?.data?.message || "Failed to send message";
+      toast.error(message);
+      console.error("Contact error:", error);
     }
-  
-  
-  
-  
-  }
-    
+  };
+
   return (
     <div className="flex flex-col items-center justify-center text-center space-y-2 mt-24 pb-14">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col items-center text-sm text-slate-800"
-      >
-        <p className="text-2xl text-gray-500 font-medium px-3 py-1 rounded-full">
-          Contact Us
-        </p>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center text-sm text-slate-800">
+        <p className="text-2xl text-gray-500 font-medium px-3 py-1 rounded-full">Contact Us</p>
         <h1 className="text-4xl font-light py-4 text-center text-primary">
           Let’s Get In Touch.
         </h1>
@@ -76,7 +79,7 @@ function Contact() {
                 {...register("name", { required: "Name is required" })}
               />
             </div>
-            {errors.fullName && (
+            {errors.name && (
               <p className="text-red-500 text-xs mt-1 text-left pl-1">
                 {errors.name.message}
               </p>
