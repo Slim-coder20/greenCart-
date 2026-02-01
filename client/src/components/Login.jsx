@@ -29,9 +29,8 @@ const Login = () => {
   });
 
   /**
-   * Fonction de soumission du formulaire
-   * Enregistre l'utilisateur avec son email et son nom (ou "User" par défaut)
-   * Ferme la modale après la soumission
+   * Connexion ou inscription de l'utilisateur 
+   * Envoie des données au serveur en fonction du mode (login ou register)
    */
   const onSubmit = async (data) => {
    try {
@@ -55,7 +54,7 @@ const Login = () => {
       navigate("/");
     } else {
       // Si la connexion échoue, on affiche un message d'erreur //
-      toast.error(response.data.errorMessage || response.data.message || "Une erreur est survenue");
+      toast.error("Une erreur est survenue lors de la connexion");
       reset();
     }
    } catch (error) {

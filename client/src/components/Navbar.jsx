@@ -5,7 +5,9 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
-import {useEffect } from "react"; 
+import {useEffect } from "react";
+import toast from "react-hot-toast";
+
 
 // ============================================
 // COMPOSANT NAVBAR
@@ -22,26 +24,28 @@ export const Navbar = () => {
     navigate,
     setSearchQuery,
     searchQuery,
-    getCartCount
+    getCartCount,
+    axios
+ 
   } = useAppContext(); // Récupération des valeurs du contexte
 
-  // ============================================
-  // FONCTIONS
-  // ============================================
-  // Fonction de déconnexion : réinitialise l'utilisateur et redirige vers la page d'accueil
-  const logout = async () => {
-    setUser(null);
-    navigate("/");
-  };
+ /**
+  * 
+  * Déconnexion du user avec envoie de données au serveur pour la deconnexion et suppression du cookie de connexion
+  */
 
-  //==================================
-  //Création d'un useEffect 
-  //==================================
-  useEffect(() => {
-    if(searchQuery.length > 0 ) {
-      navigate("/products"); 
+  const logout = async (data ) => {
+   try {
+    const { data } = await axios.get("/api/user/logout");
+    if(data.success) {
+      setUser(null);
+      navigate("/");
+      toast.success(data.message);
     }
-  },[searchQuery])
+   } catch (error) {
+    toast.error("Une erreur est survenue lors de la déconnexion")
+   }
+  }; 
 
   // ============================================
   // RENDU DU COMPOSANT

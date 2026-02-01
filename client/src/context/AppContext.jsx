@@ -153,8 +153,7 @@ export const AppContextProvider = ({ children }) => {
     fetchProducts();
   }, []);
 
-  // Ce tableau value va me permettre de récupérer les valeurs de l'état global de l'application //
-  // et de les utiliser dans les composants enfants //
+  // Ce tableau value permet de partager les valeurs de l'état global de l'application avec tous le composants de l'applicat //
   const value = {
     navigate,
     user,
@@ -178,8 +177,9 @@ export const AppContextProvider = ({ children }) => {
     fetchProducts
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};;;;;
+}
 
+// Fonction qui permet de récupérer les valeurs de l'état global de l'application dans les composants enfants //
 export const useAppContext = () => {
   return useContext(AppContext);
 };
