@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
  */
 const Login = () => {
   // Récupération des fonctions du contexte pour gérer l'utilisateur et la visibilité de la modale
-  const { setShowUserLogin, setUser, axios, navigate } = useAppContext();
+  const { setShowUserLogin, setUser, setCartItems, axios, navigate } = useAppContext();
   
   // État pour basculer entre le mode "login" et "register"
   const [state, setState] = useState("login");
@@ -45,8 +45,9 @@ const Login = () => {
     const response = await axios.post(endpoint, payload);
 
     if (response.data.success) {
-      // Si la connexion est réussie, on stocke l'utilisateur et on ferme la modale //
-      setUser(response.data.user);
+      const userData = response.data.user;
+      setUser(userData);
+      setCartItems(userData?.cartItems || {});
       setShowUserLogin(false);
       toast.success(response.data.message);
       // Réinitialisation du formulaire //

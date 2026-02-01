@@ -20,31 +20,34 @@ export const Navbar = () => {
   const {
     user,
     setUser,
+    setCartItems,
     setShowUserLogin,
     navigate,
     setSearchQuery,
     searchQuery,
     getCartCount,
-    axios
- 
-  } = useAppContext(); // Récupération des valeurs du contexte
+    axios,
+  } = useAppContext();
 
  /**
   * 
   * Déconnexion du user avec envoie de données au serveur pour la deconnexion et suppression du cookie de connexion
   */
 
-  const logout = async (data ) => {
-   try {
-    const { data } = await axios.get("/api/user/logout");
-    if(data.success) {
+  const logout = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      if (data?.success) {
+        setUser(null);
+        setCartItems({});
+        navigate("/");
+        toast.success(data.message);
+      }
+    } catch (error) {
       setUser(null);
-      navigate("/");
-      toast.success(data.message);
+      setCartItems({});
+      toast.error("An error occurred during logout");
     }
-   } catch (error) {
-    toast.error("Une erreur est survenue lors de la déconnexion")
-   }
   }; 
 
   // ============================================

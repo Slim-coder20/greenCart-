@@ -67,13 +67,14 @@ export const register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     })
 
-    // Réponse au client //
     return res.status(201).json({
       success: true,
       message: "User created successfully",
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
+        cartItems: user.cartItems || {},
       },
     });
   } catch (error) {
@@ -123,14 +124,15 @@ export const login  = async (req, res ) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     })
-      // Réponse au client (token aussi dans le body pour tests Postman / Authorization header) //
       return res.status(201).json({
         success: true,
         message: "User connected",
         token,
         user: {
+          _id: user._id,
           name: user.name,
           email: user.email,
+          cartItems: user.cartItems || {},
         },
       });
     } catch (error) {
@@ -141,18 +143,30 @@ export const login  = async (req, res ) => {
   }
 }
 
-// création d'une fonction pour vérfier si le user est authentifié : /api/user/is-auth
-export const isAuth = async (req, res ) => {
+// Vérification si le user est authentifié : GET /api/user/is-auth
+export const isAuth = async (req, res) => {
   try {
-    const { userId } = req.body; 
+    const { userId } = req.body;
     const user = await User.findById(userId).select("-password");
-    return res.status(200).json({success: true, user})
-    
+    if (!user) {
+      return res.status(401).json({ success: false, errorMessage: "User not found" });
+    }
+    return res.status(200).json({
+      // Réponse de succès avec les données de l'utilisateur
+      success: true,
+      user: {
+        // Données de l'utilisateur
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        cartItems: user.cartItems || {},
+      },
+    });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({success:false, errorMessage: error.message}); 
+    console.error("isAuth error:", error.message);
+    return res.status(500).json({ success: false, errorMessage: error.message });
   }
-}
+};
 
 // Création d'une fonction pour la deconnexion /api/user/logout 
 export const logout = async (req, res ) => {

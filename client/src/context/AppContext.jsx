@@ -1,7 +1,6 @@
 import { createContext, useContext} from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -38,17 +37,30 @@ export const AppContextProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fonction qui vérifie si le seller est connecté (via le cookie sellerToken) //
+  // Vérifie si le seller est connecté (cookie sellerToken)
   const fetchSeller = async () => {
     try {
       const { data } = await axios.get("/api/seller/is-auth");
-      if (data.success) {
-        setIsSeller(true);
-      } else {
-        setIsSeller(false);
-      }
+      setIsSeller(!!data?.success);
     } catch (error) {
       setIsSeller(false);
+    }
+  };
+
+  // Vérifie si l'utilisateur est connecté et restaure user + panier (cookie token)
+  const fetchUser = async () => {
+    try {
+      const { data } = await axios.get("/api/user/is-auth");
+      if (data?.success && data.user) {
+        setUser(data.user);
+        setCartItems(data.user.cartItems || {});
+      } else {
+        setUser(null);
+        setCartItems({});
+      }
+    } catch (error) {
+      setUser(null);
+      setCartItems({});
     }
   };
 
@@ -56,15 +68,13 @@ export const AppContextProvider = ({ children }) => {
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("/api/product/list");
-      if (data.success) {
+      if (data?.success && data.products) {
         setProducts(data.products);
-        toast.success(data.message);
       } else {
-        toast.error(data.message);
+        toast.error(data?.message || "Error loading products");
       }
     } catch (error) {
-      // Si une erreur survient, on affiche un message d'erreur //
-      toast.error("Error for get all products");  
+      toast.error("Error loading products");
     }
   };
 
@@ -136,22 +146,38 @@ export const AppContextProvider = ({ children }) => {
     let totalAmount = 0;
     // Parcourt chaque produit dans le panier
     for (const items in cartItems) {
-      // Trouve les informations du produit dans la liste products en utilisant l'ID
-      let itemInfo = products.find((product) => product._id === items);
-      // Vérifie que la quantité est supérieure à 0 pour éviter les erreurs
-      if (cartItems[items] > 0) {
-        // Ajoute au total : prix promotionnel × quantité
+      const itemInfo = products.find((product) => product._id === items);
+      if (itemInfo && cartItems[items] > 0) {
         totalAmount += itemInfo.offerPrice * cartItems[items];
       }
     }
     // Retourne le montant total arrondi à 2 décimales (troncature)
     return Math.floor(totalAmount * 100) / 100;
   };
-
+  // Au montage : restauration seller, user+panier, et chargement produits
   useEffect(() => {
     fetchSeller();
+    fetchUser();
     fetchProducts();
   }, []);
+
+  // Synchronisation du panier vers la BDD quand l'utilisateur modifie cartItems
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const syncCart = async () => {
+      try {
+        const { data } = await axios.post("/api/cart/update", { cartItems });
+        if (!data?.success) {
+          toast.error(data?.message || "Failed to update cart");
+        }
+      } catch (error) {
+        toast.error(error?.response?.data?.errorMessage || "Failed to update cart");
+      }
+    };
+
+    syncCart();
+  }, [user?._id, cartItems]);
 
   // Ce tableau value permet de partager les valeurs de l'état global de l'application avec tous le composants de l'applicat //
   const value = {
@@ -174,10 +200,10 @@ export const AppContextProvider = ({ children }) => {
     getCartAmount,
     getCartCount,
     axios,
-    fetchProducts
+    fetchProducts,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-}
+};
 
 // Fonction qui permet de récupérer les valeurs de l'état global de l'application dans les composants enfants //
 export const useAppContext = () => {
