@@ -5,6 +5,7 @@ import {
   getAllOrders,
   getUserOrders,
   placeOrderCod,
+  placeOrderStripe,
 } from "../controllers/orderController.js";
 
 // Initialisation du router //
@@ -12,6 +13,7 @@ const orderRouter = express.Router();
 
 // Routes //
 orderRouter.post("/cod", authUser, placeOrderCod);
+orderRouter.post("/stripe", authUser,placeOrderStripe); 
 orderRouter.get("/user", authUser, getUserOrders);
 orderRouter.get("/seller", authSeller, getAllOrders);
 

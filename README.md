@@ -255,3 +255,7 @@ Les variables exposées au code doivent être préfixées par `VITE_` (ex. `VITE
 - `POST /api/user/logout` — Déconnexion (efface le cookie)
 
 L’authentification pour les routes protégées repose sur le cookie contenant le JWT et le middleware `authUser`.
+
+
+
+SlimDev20@29031980
