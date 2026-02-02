@@ -16,13 +16,13 @@ export const sellerLogin = async (req, res) => {
         expiresIn: "7d",
       });
 
-      // Création du cookie pour la session du vendeur : Seller  //
+      const isProduction = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+
       res.cookie("sellerToken", token, {
         httpOnly: true,
-        // Secure: true si en production, sinon false pour le développement //
-        secure: process.env.NODE_ENV === "production",
-        // SameSite: none si en production, sinon strict pour le développement //
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "strict",
+        path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
       });
       return res.status(201).json({ success: true, message: "Logged in" });
@@ -51,10 +51,13 @@ export const isSellerAuth = async (req, res) => {
 export const sellerLogout = async (req, res ) => {
   try {
     // On supprime le cookie 
-    res.clearCookie('sellerToken', {
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+    const isProduction = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+
+    res.clearCookie("sellerToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "strict",
+      path: "/",
     });
     return res.status(200).json({success: true, message: 'Logged out'})
     

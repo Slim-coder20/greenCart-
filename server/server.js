@@ -28,15 +28,30 @@ await connectMongo();
 await connectCloudinary();
 
 
-// Cette liste contient les origines autorisé pour les requetess CORS (Cross-Origin Resource Sharing)
-const allowedOrigins = ["http://localhost:5173", 'https://foodstorefront.vercel.app']
+// Origines autorisées CORS (inclure toutes les URLs Vercel du frontend)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://foodstorefront.vercel.app",
+  /^https:\/\/foodstorefront.*\.vercel\.app$/, // Previews Vercel
+];
 
 // Webhook pour Stripe // 
 app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
 
 // Middleware configuration initialisation /
 // Création d'un objet cors avec les origines autorisés et le cookie parser pour les cookies//
-app.use(cors({ origin: allowedOrigins, credentials: true })); 
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // Requêtes same-origin (Postman, etc.)
+      const allowed = allowedOrigins.some((o) =>
+        typeof o === "string" ? o === origin : o.test(origin)
+      );
+      callback(null, allowed ? origin : false);
+    },
+    credentials: true,
+  })
+); 
 app.use(express.json());
 app.use(cookieParser()); 
 

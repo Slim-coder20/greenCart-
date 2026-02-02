@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
  */
 const Login = () => {
   // Récupération des fonctions du contexte pour gérer l'utilisateur et la visibilité de la modale
-  const { setShowUserLogin, setUser, setCartItems, axios, navigate } = useAppContext();
+  const { setShowUserLogin, setUser, setCartItems, setAuthToken, axios, navigate } = useAppContext();
   
   // État pour basculer entre le mode "login" et "register"
   const [state, setState] = useState("login");
@@ -46,6 +46,8 @@ const Login = () => {
 
     if (response.data.success) {
       const userData = response.data.user;
+      const token = response.data.token;
+      if (token) setAuthToken(token); // Pour prod cross-origin (Authorization header)
       setUser(userData);
       setCartItems(userData?.cartItems || {});
       setShowUserLogin(false);

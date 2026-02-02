@@ -22,6 +22,7 @@ export const Navbar = () => {
     setUser,
     setCartItems,
     setShowUserLogin,
+    setAuthToken,
     navigate,
     setSearchQuery,
     searchQuery,
@@ -36,17 +37,15 @@ export const Navbar = () => {
 
   const logout = async () => {
     try {
-      const { data } = await axios.get("/api/user/logout");
-      if (data?.success) {
-        setUser(null);
-        setCartItems({});
-        navigate("/");
-        toast.success(data.message);
-      }
-    } catch (error) {
+      await axios.get("/api/user/logout");
+    } catch {
+      // Ignorer erreur (token invalide ou déjà déconnecté)
+    } finally {
+      setAuthToken(null);
       setUser(null);
       setCartItems({});
-      toast.error("An error occurred during logout");
+      navigate("/");
+      toast.success("Logged out");
     }
   }; 
 

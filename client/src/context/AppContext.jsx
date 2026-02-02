@@ -18,10 +18,12 @@ import axios from "axios";
  */
 
 // Configuration pour envoyer les cookies avec les requêtes API //
-axios.defaults.withCredentials = true; 
+axios.defaults.withCredentials = true;
 
 // Configuration de l'URL de base pour les requêtes API //
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL; 
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
+const TOKEN_KEY = "foodstore_token";
 
 export const AppContext = createContext();
 // Création du context global de l'application //
@@ -36,6 +38,17 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Gestion du token pour cross-origin (prod : front/back sur domaines différents)
+  const setAuthToken = (token) => {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  };
 
   // Vérifie si le seller est connecté (cookie sellerToken)
   // validateStatus: évite que le 401 (utilisateur non-vendeur) soit traité comme une erreur
@@ -157,8 +170,12 @@ export const AppContextProvider = ({ children }) => {
     // Retourne le montant total arrondi à 2 décimales (troncature)
     return Math.floor(totalAmount * 100) / 100;
   };
-  // Au montage : restauration seller, user+panier, et chargement produits
+  // Au montage : restauration token, seller, user+panier, et chargement produits
   useEffect(() => {
+    const savedToken = localStorage.getItem(TOKEN_KEY);
+    if (savedToken) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${savedToken}`;
+    }
     fetchSeller();
     fetchUser();
     fetchProducts();
@@ -205,6 +222,7 @@ export const AppContextProvider = ({ children }) => {
     axios,
     fetchProducts,
     fetchUser,
+    setAuthToken,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

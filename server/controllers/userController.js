@@ -57,19 +57,22 @@ export const register = async (req, res) => {
       expiresIn: "7d",
     });
     
+    // Détection production (Vercel ou NODE_ENV)
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
     // Création du cookie pour la session de l'utilisateur //
     res.cookie('token', token, {
       httpOnly: true,
-      // Secure: true si en production, sinon false pour le développement //
-      secure: process.env.NODE_ENV === 'production',
-      // SameSite: none si en production, sinon strict pour le développement //
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'strict',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     })
 
     return res.status(201).json({
       success: true,
       message: "User created successfully",
+      token, // Pour frontend cross-origin (Authorization header)
       user: {
         _id: user._id,
         name: user.name,
@@ -114,17 +117,19 @@ export const login  = async (req, res ) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    
+
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
     // Création du cookie pour la session de l'utilisateur //
     res.cookie('token', token, {
       httpOnly: true,
-      // Secure: true si en production, sinon false pour le développement //
-      secure: process.env.NODE_ENV === 'production',
-      // SameSite: none si en production, sinon strict pour le développement //
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'strict',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
     })
-      return res.status(201).json({
+
+    return res.status(201).json({
         success: true,
         message: "User connected",
         token,
@@ -171,11 +176,13 @@ export const isAuth = async (req, res) => {
 // Création d'une fonction pour la deconnexion /api/user/logout 
 export const logout = async (req, res ) => {
   try {
-    // On supprime le cookie 
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
     res.clearCookie('token', {
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'strict',
+      path: '/',
     });
     return res.status(200).json({success: true, message: 'Logged out'})
     
