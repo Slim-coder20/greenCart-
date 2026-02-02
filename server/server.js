@@ -11,6 +11,7 @@ import cartRouter from "./routes/cartRouter.js";
 import addressRouter from "./routes/addressRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import contactRouter from "./routes/contactRoute.js";
+import { stripeWebhooks } from "./controllers/orderController.js";
 
 dotenv.config();
 
@@ -26,7 +27,12 @@ await connectMongo();
 // Connect to Cloudinary // 
 await connectCloudinary();
 
+
+
 const allowedOrigins = ["http://localhost:5173"]
+
+// Webhook pour Stripe // 
+app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
 
 // Middleware configuration initialisation /
 // Création d'un objet cors avec les origines autorisés et le cookie parser pour les cookies//

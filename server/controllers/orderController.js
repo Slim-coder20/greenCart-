@@ -1,6 +1,7 @@
 import Order from "../models/order.js";
 import Product from "../models/product.js";
 import stripe from "stripe";
+import User from "../models/user.js"; 
 
 //================================
 // Ce controller est utilisé pour gérer les commandes des utilisateurs dans la base de données :
@@ -133,6 +134,80 @@ export const placeOrderStripe = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+// fonction qui permet de vérifier le paiement en ligne Stripe via webhook : /stripe
+export const stripeWebhooks = async (req, res ) => {
+  // Initialisation de Stripe 
+  const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+  // Récupérer le signature du webhook //
+  const sig = req.headers["stripe-signature"];
+  // Initialisation de l'event //
+  let event; 
+
+  try {
+    // Vérifier la signature du webhook //
+    event = stripeInstance.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+    
+  } catch (error) {
+    // Retourner un message d'erreur //
+    response.status(400).send(`Webhook Error: ${error.message}`)
+  }
+
+  // Gestion de l'event // 
+  switch (event.type) {
+    case "payment_intent.succeeded":{
+      // Récupérer le paymentIntent //
+      const paymentIntent = event.data.object;
+      // Récupérer le paymentIntentId //
+      const paymentIntentId = paymentIntent.id;
+      
+      // Récupérer la session meta data via le paymentIntentId //
+      const session = await stripeInstance.checkout.sessions.list({
+        payment_intent: paymentIntentId,
+      });
+      // Récupérer l'orderId et l'userId de la session //
+      const {orderId, userId} = session.data[0].metadata;
+      // Récupérer la commande //
+      const order = await Order.findByIdAndUpdate(orderId, {isPaid: true});
+      // Clear user cart via userId // 
+      await User.findByIdAndUpdate(userId, {cartItems: {}});
+      
+      // Retourner un message de succès //
+      return res.status(200).json({ success: true, message: "Payment Successful" });
+      break;
+    }
+    case "payment_intent.payment_failed":{
+       // Récupérer le paymentIntent //
+       const paymentIntent = event.data.object;
+       // Récupérer le paymentIntentId //
+       const paymentIntentId = paymentIntent.id;
+       
+       // Récupérer la session meta data via le paymentIntentId //
+       const session = await stripeInstance.checkout.sessions.list({
+         payment_intent: paymentIntentId,
+       });
+       // Récupérer l'orderId et l'userId de la session //
+       const {orderId } = session.data[0].metadata;
+       await Order.findByIdAndDelete(orderId);
+       break; 
+
+    }
+    default:
+      console.error(`unhandled event type ${event.type}`); 
+      break;
+  }
+  response.json({received: true}); 
+}
+
+
+
+
+
 
 // Récupération d'une commande a partir de l'id du User : /api/order/user
 export const getUserOrders = async (req, res) => {
