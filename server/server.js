@@ -28,8 +28,8 @@ await connectMongo();
 await connectCloudinary();
 
 
-
-const allowedOrigins = ["http://localhost:5173"]
+// Cette liste contient les origines autorisé pour les requetess CORS (Cross-Origin Resource Sharing)
+const allowedOrigins = ["http://localhost:5173", 'https://foodstorefront.vercel.app']
 
 // Webhook pour Stripe // 
 app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhooks)
