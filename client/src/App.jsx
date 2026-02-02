@@ -18,19 +18,20 @@ import SellerLayout from "./pages/seller/SellerLayout";
 import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
+import Loading from "./components/Loading";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("seller");
   const { showUserLogin, isSeller } = useAppContext();
 
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen flex flex-col">
       {/* Utilisation d'une condition ternaire pour l'affichage de la navbar seller / user  */}
       {isSellerPath ? null : <Navbar />}
       {showUserLogin ? <Login /> : null}
       <Toaster />
       <div
-        className={`w-full ${isSellerPath ? "" : "md:px-16 lg:px-24 xl:px-32"}`}
+        className={`w-full flex-1 ${isSellerPath ? "" : "md:px-16 lg:px-24 xl:px-32"}`}
       >
         <Routes>
           <Route path="/" element={<Home />} />
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/loader" element={<Loading />} />
           {/* Les route de l'interface Seller  */}
           <Route
             path="/seller"
