@@ -4,18 +4,20 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react"; 
 
 const Loading = () => {
-  const { navigate } = useAppContext();
+  const { navigate, fetchUser } = useAppContext();
   let { search } = useLocation();
   const query = new URLSearchParams(search);
   const nextUrl = query.get('next')
 
   useEffect(() => {
-    if(nextUrl){
+    if (nextUrl) {
+      // Rafraîchir les données user (panier vidé par le webhook) avant la redirection
+      fetchUser();
       setTimeout(() => {
-        navigate(`/${nextUrl}`)
-      },5000)
+        navigate(`/${nextUrl}`);
+      }, 2500);
     }
-  },[nextUrl])
+  }, [nextUrl, navigate, fetchUser])
 
   return (
     <div className="flex justify-center items-center h-screen">

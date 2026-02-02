@@ -122,7 +122,7 @@ export const placeOrderStripe = async (req, res) => {
       cancel_url:`${origin}/cart`,
       metadata: {
         orderId: order._id.toString(),
-        userId, 
+        userId: userId.toString(),
       }
     })
     return res
@@ -136,72 +136,90 @@ export const placeOrderStripe = async (req, res) => {
 };
 
 
-// fonction qui permet de vérifier le paiement en ligne Stripe via webhook : /stripe
-export const stripeWebhooks = async (req, res ) => {
-  // Initialisation de Stripe 
+/**
+ * stripeWebhooks
+ * Route : POST /stripe
+ *
+ * Webhook appelé par Stripe pour notifier les événements de paiement.
+ * Doit être configuré avec express.raw() car Stripe exige le body brut pour la vérification de signature.
+ * Événements gérés :
+ * - checkout.session.completed : paiement réussi via Checkout → met à jour la commande, vide le panier
+ * - payment_intent.succeeded : alternative pour paiement réussi
+ * - payment_intent.payment_failed : paiement échoué → supprime la commande
+ */
+export const stripeWebhooks = async (req, res) => {
+  // 1. Initialisation de l'instance Stripe
   const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-  // Récupérer le signature du webhook //
   const sig = req.headers["stripe-signature"];
-  // Initialisation de l'event //
-  let event; 
+  let event;
 
+  // 2. Vérification de la signature du webhook (sécurité : garantit que la requête provient de Stripe)
   try {
-    // Vérifier la signature du webhook //
     event = stripeInstance.webhooks.constructEvent(
-      req.body,
+      req.body, // Body brut (Buffer) requis - ne pas utiliser express.json() sur cette route
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-    
   } catch (error) {
-    // Retourner un message d'erreur //
-    response.status(400).send(`Webhook Error: ${error.message}`)
+    console.error("Webhook Stripe - signature invalide:", error.message);
+    return res.status(400).send(`Webhook Error: ${error.message}`);
   }
 
-  // Gestion de l'event // 
+  // 3. Fonction helper : marque la commande comme payée et vide le panier de l'utilisateur
+  const handlePaymentSuccess = async (orderId, userId) => {
+    await Order.findByIdAndUpdate(orderId, { isPaid: true });
+    await User.findByIdAndUpdate(userId, { cartItems: {} });
+  };
+
+  // 4. Traitement de l'événement selon son type
   switch (event.type) {
-    case "payment_intent.succeeded":{
-      // Récupérer le paymentIntent //
-      const paymentIntent = event.data.object;
-      // Récupérer le paymentIntentId //
-      const paymentIntentId = paymentIntent.id;
-      
-      // Récupérer la session meta data via le paymentIntentId //
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: paymentIntentId,
-      });
-      // Récupérer l'orderId et l'userId de la session //
-      const {orderId, userId} = session.data[0].metadata;
-      // Récupérer la commande //
-      const order = await Order.findByIdAndUpdate(orderId, {isPaid: true});
-      // Clear user cart via userId // 
-      await User.findByIdAndUpdate(userId, {cartItems: {}});
-      
-      // Retourner un message de succès //
-      return res.status(200).json({ success: true, message: "Payment Successful" });
+    // Événement principal pour Stripe Checkout (recommandé par Stripe)
+    case "checkout.session.completed": {
+      const session = event.data.object;
+      if (session.payment_status !== "paid") break; // Ignorer si paiement non finalisé
+      const { orderId, userId } = session.metadata || {};
+      if (orderId && userId) {
+        await handlePaymentSuccess(orderId, userId);
+        console.log("Webhook Stripe: commande", orderId, "marquée comme payée");
+      }
       break;
     }
-    case "payment_intent.payment_failed":{
-       // Récupérer le paymentIntent //
-       const paymentIntent = event.data.object;
-       // Récupérer le paymentIntentId //
-       const paymentIntentId = paymentIntent.id;
-       
-       // Récupérer la session meta data via le paymentIntentId //
-       const session = await stripeInstance.checkout.sessions.list({
-         payment_intent: paymentIntentId,
-       });
-       // Récupérer l'orderId et l'userId de la session //
-       const {orderId } = session.data[0].metadata;
-       await Order.findByIdAndDelete(orderId);
-       break; 
 
-    }
-    default:
-      console.error(`unhandled event type ${event.type}`); 
+    // Événement alternatif (niveau PaymentIntent)
+    case "payment_intent.succeeded": {
+      const paymentIntent = event.data.object;
+      // Récupérer la session Checkout associée (les metadata sont sur la session)
+      const sessionList = await stripeInstance.checkout.sessions.list({
+        payment_intent: paymentIntent.id,
+      });
+      if (sessionList.data.length > 0) {
+        const { orderId, userId } = sessionList.data[0].metadata || {};
+        if (orderId && userId) {
+          await handlePaymentSuccess(orderId, userId);
+        }
+      }
       break;
+    }
+
+    // Paiement refusé ou échoué : suppression de la commande non payée
+    case "payment_intent.payment_failed": {
+      const paymentIntent = event.data.object;
+      const sessionList = await stripeInstance.checkout.sessions.list({
+        payment_intent: paymentIntent.id,
+      });
+      if (sessionList.data.length > 0) {
+        const { orderId } = sessionList.data[0].metadata || {};
+        if (orderId) await Order.findByIdAndDelete(orderId);
+      }
+      break;
+    }
+
+    default:
+      console.log("Webhook Stripe - événement non géré:", event.type);
   }
-  response.json({received: true}); 
+
+  // 5. Confirmer à Stripe que le webhook a bien été reçu
+  res.json({ received: true });
 }
 
 
