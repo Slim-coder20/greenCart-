@@ -4,13 +4,21 @@ Application e-commerce alimentaire full-stack avec une interface client (acheteu
 
 ---
 
+## Application en production
+
+**Lien :** [https://foodstorefront.vercel.app](https://foodstorefront.vercel.app)
+
+---
+
 ## Sommaire
 
+- [Application en production](#application-en-production)
 - [Technologies utilisées](#technologies-utilisées)
 - [Architecture du projet](#architecture-du-projet)
 - [Installation](#installation)
 - [Variables d'environnement](#variables-denvironnement)
 - [Lancement de l'application](#lancement-de-lapplication)
+- [Paiement Stripe](#paiement-stripe)
 
 ---
 
@@ -193,6 +201,8 @@ client/
 | `JWT_SECRET`   | Secret pour signer les JWT     | Chaîne longue et aléatoire |
 | `PORT`         | Port du serveur (optionnel)    | `3000`                     |
 | `NODE_ENV`     | Environnement (development / production) | `development`     |
+| `STRIPE_SECRET_KEY` | Clé secrète API Stripe (paiements) | `sk_test_...` ou `sk_live_...` |
+| `STRIPE_WEBHOOK_SECRET` | Secret du webhook Stripe (optionnel) | `whsec_...` |
 
 Exemple minimal :
 
@@ -256,6 +266,17 @@ Les variables exposées au code doivent être préfixées par `VITE_` (ex. `VITE
 
 L’authentification pour les routes protégées repose sur le cookie contenant le JWT et le middleware `authUser`.
 
+---
 
+## Paiement Stripe
+
+Les paiements en ligne sont gérés par [Stripe](https://stripe.com). Pour configurer Stripe :
+
+- **Documentation :** [https://stripe.com/docs](https://stripe.com/docs)
+- **Tableau de bord :** [https://dashboard.stripe.com](https://dashboard.stripe.com)
+
+Configurez `STRIPE_SECRET_KEY` (et éventuellement `STRIPE_WEBHOOK_SECRET`) dans `server/.env` pour activer les paiements (voir [Variables d'environnement](#variables-denvironnement)).
+
+---
 
 SlimDev20@29031980
