@@ -2,16 +2,29 @@ import React from 'react'
 import { useAppContext } from "../../context/AppContext";
 import { useState, useEffect } from "react";
 import { dummyOrders, assets } from "../../assets/assets"; 
+import toast from "react-hot-toast";
+
+
 const Orders = () => {
   // Récupération du currency du contexte //
-  const { currency } = useAppContext();
+  const { currency, axios, isSeller } = useAppContext();
   // État pour stocker les commandes //
   const [orders, setOrders] = useState([]);
 
   // Création d'une fonction qui va récupérer les commandes dans l'espace Seller //
   const fetchOrders = async () => {
     // Récupération des commandes dans l'espace Seller //
-    setOrders(dummyOrders);
+    try {
+      const {data } = await axios.get("/api/order/seller"); 
+      if(data.success){
+        setOrders(data.orders); 
+      } else {
+        toast.error(data.message); 
+      }
+    } catch (error) {
+      toast.error(error.message); 
+    }
+
   };
 
   // useEffect va nous permettre d'executer la fonction fetchOrders au chargement de la page //
